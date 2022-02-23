@@ -35,7 +35,7 @@ for idx, doc in enumerate(corpus):
     # White Space removal
     doc = doc.strip()
 
-    # Remove text in braces,brackets,parentheses.
+    # Remove text in braces, brackets, parentheses.
     for i in range(len(l)):
         left = doc.find(l[i])
         while left != -1:
