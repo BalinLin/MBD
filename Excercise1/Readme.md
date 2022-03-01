@@ -10,3 +10,6 @@ pip3 install sklearn
 pip3 install matplotlib
 pip3 install statsmodels
 ```
+
+### Reference
+- [For excercise 1-1](https://stats.stackexchange.com/questions/374972/sufficient-statistic-for-beta-in-ols/375954)
