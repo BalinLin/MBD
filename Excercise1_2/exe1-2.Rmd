@@ -1,0 +1,186 @@
+---
+title: "Exercise 2: Balin Lin, Haoyuan Li"
+output: html_notebook
+---
+
+```{r}
+install.packages("seqinr")
+```
+
+```{r}
+library(seqinr)
+```
+
+```{r}
+aedesaegypi=read.fasta(file="/Users/mac06/Code/MBD/Excercise1_2/aedesaegypti.fasta")
+```
+
+```{r}
+aedesaegypi=aedesaegypi[[1]]
+```
+
+```{r}
+length(aedesaegypi)
+# table(aedesaegypi)/length(aedesaegypi) 
+```
+
+1. Do a sliding window analysis of the GC content, that is, to study the variation in GC content within the genome sequence:
+
+(a) calculate the GC content of chunks with length 200 and length 1000 (window sizes=200 and 1000)
+
+```{r}
+n=length(aedesaegypi); m=200; k=n%/%m
+gcc=numeric(k)
+id200 = 0
+m200 = 0
+id1000 = 0
+m1000 = 0
+
+for(i in 1:k){
+  a=(i-1)*m+1; b=a+m
+  gcc[i]=GC(aedesaegypi[a:b])
+  if(m200 < gcc[i]){
+    id200 = i
+    m200 = gcc[i]
+  }
+}
+
+n=length(aedesaegypi); m=1000; k=n%/%m
+gcc1000=numeric(k)
+
+for(i in 1:k){
+  a=(i-1)*m+1;b=a+m
+  gcc1000[i]=GC(aedesaegypi[a:b])
+  if(m1000 < gcc1000[i]){
+    id1000 = i
+    m1000 = gcc1000[i]
+  }
+}
+```
+
+```{r}
+ts.plot(gcc)
+```
+
+
+```{r}
+ts.plot(gcc1000)
+```
+
+```{r}
+ts.plot(gcc[1:10000])
+lines(gcc1000[1:10000],col="red")
+```
+
+(b) find the maximum GC content for each window size and plot the GC content around the point (± 1000) where the maximum is reached.
+
+```{r}
+print("windows size 200")
+print("idx:")
+print(id200)
+print("max:")
+print(m200)
+
+print("windows size 1000")
+print("idx:")
+print(id1000)
+print("max:")
+print(m1000)
+```
+
+2. Fit the genome sequence to a Multinomial and to a Markov chain model. Estimate its corresponding probabilities and transition probability matrix. Compute also the BIC and decide which model is better.
+
+```{r}
+count_mm = count(aedesaegypi,1,freq=T)
+```
+
+```{r}
+print(count_mm)
+```
+
+```{r}
+a = count(aedesaegypi, 2)
+c = matrix(a, 4, 4, byrow=TRUE, dimnames = list(c("a", "c", "g", "t"), c("a", "c", "g", "t")))
+c[,]/(c[,1]+c[,2]+c[,3]+c[,4])
+```
+
+The smaller the value of the statistic BIC the better the fit of the
+model.
+
+```{r}
+n=length(aedesaegypi); par=3
+c=count(aedesaegypi,1)
+p=count(aedesaegypi,1,freq=T)
+BIC=-2*sum(c*log(p)) + par*log(n)
+print("Multinomial")
+print(BIC)
+```
+
+```{r}
+n=length(aedesaegypi)-1; par=12
+a=count(aedesaegypi,2)
+c = matrix(a, 4, 4, byrow=TRUE, dimnames = list(c("A","C","G","T"), c("A","C","G","T")))
+p=c[,]/(c[,1]+c[,2]+c[,3]+c[,4])
+BIC=-2*sum(c*log(p)) + par*log(n)
+print("Markov chain")
+print(BIC)
+```
+
+Markov model is better! 
+
+3. Consider again sliding windows of length 50 and calculate the GC content and the presence/absence of the trinucleotid “aaa”. Is there any relationship between the presence of “aaa” and the GC content? What is the probability of “aaa” for a chunk with a GC content of 0.51 ? Plot the estimated probability of “aaa” against the GC content.
+
+```{r}
+vec <- c()
+num = 0
+
+n=length(aedesaegypi); m=50; k=n%/%m
+gcc=numeric(k)
+
+for(i in 1:k){
+  a=(i-1)*m+1; b=a+m
+  gcc[i]=GC(aedesaegypi[a:b])
+  num = num + 1
+  if(!is.na(gcc[i]) && round(gcc[i], digits = 2) == 0.51){
+    aaa = count(aedesaegypi[a:b], 3, freq=T)['aaa']
+    vec <- c(vec, aaa)
+  }
+}
+```
+
+```{r}
+ts.plot(gcc)
+```
+
+```{r}
+ts.plot(vec)
+```
+
+4. Consider again sliding windows of length 50 and calculate the GC content and the counts of the trinucleotid “aaa”. Is there any relationship between the mean of the counts of “aaa” and the GC content? What is the predicted mean of the counts of “aaa” for a chunk with a GC content of 0.4 ? Plot the estimated mean of the counts of “aaa” against the GC content.
+
+```{r}
+vec <- c()
+num = 0
+
+n=length(aedesaegypi); m=50; k=n%/%m
+gcc=numeric(k)
+
+for(i in 1:k){
+  a=(i-1)*m+1; b=a+m
+  gcc[i]=GC(aedesaegypi[a:b])
+  num = num + 1
+  if(!is.na(gcc[i]) && round(gcc[i], digits = 2) == 0.4){
+    aaa = count(aedesaegypi[a:b], 3, freq=T)['aaa']
+    vec <- c(vec, aaa)
+  }
+}
+```
+
+```{r}
+ts.plot(gcc)
+```
+
+```{r}
+ts.plot(vec)
+```
+
