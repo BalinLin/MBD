@@ -1,5 +1,6 @@
-Excercise1/example1.txt
-Excercise1_2/*.fasta
-Excercise4/archive
-Excercise5/*.csv
+DL/images_train/*
+NLP/Excercise1/example1.txt
+Statistical A/Excercise1_2/*.fasta
+NLP/Excercise4/archive
+NLP/Excercise5/*.csv
 .DS_Store
